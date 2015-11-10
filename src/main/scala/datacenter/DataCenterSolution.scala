@@ -119,7 +119,18 @@ case class Solution(
       if alloc.coord.row == row
     } yield server.capacity
   }.sum
+  
+  //capacity in case any other row fails
+   def smartCapacity(pool: Pool, row: Int) = {
+    val otherRows=(0 until problem.nbRows).toSet - row
+    val byRows=for {
+      r <- otherRows
+    } yield capacity(pool, r)
+    byRows.sum - byRows.max
+  }
 
+
+  
   def rowCapacity(row: Int) = {
     for {
       (server, a) <- serversAllocated.toList

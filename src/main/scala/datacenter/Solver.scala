@@ -18,13 +18,14 @@ object SequentialSolver extends Solver {
           val pools = solution.poolsPerCapacity(problem.nbPools)
           val pool = pools.minBy(_._2)._1 // lowest capacity pool
           val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
-            solution.capacity(pool, row) + solution.rowCapacity(row)
+            solution.smartCapacity(pool, row) 
           }
           val slots = freeSlots.sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))
           slots.find(_.size >= server.size) match {
             case None => solveRec(freeSlots, t, solution.allocate(server, None))
             case Some(slot) =>
               val remainingSlot = slot.use(server.size)
+              println(s"setting $server at $slot for pool $pool")
               solveRec(
                 remainingSlot :: (freeSlots diff List(slot)),
                 t,
