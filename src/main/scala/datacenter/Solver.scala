@@ -21,7 +21,9 @@ object SequentialSolver extends Solver {
           val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
             solution.capacity(pool, row) + solution.rowCapacity(row)
           }
-          val slots = freeSlots.sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))
+          val slots = freeSlots
+          .sortBy(- _.size)
+          .sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))
           slots.find(_.size >= server.size) match {
             case None =>
               println(s"no slot free for $server")
