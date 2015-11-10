@@ -3,7 +3,7 @@ package datacenter
 import problem._
 
 case class Solution(
-    problem:Problem,
+    problem: Problem,
     serversAllocated: Map[Server, Option[Allocation]]) {
 
   def score: Int = {
@@ -71,11 +71,38 @@ case class Solution(
     }
   }
 
+  def debug: List[String] = for {
+    row <- (0 until problem.nbRows).toList
+  } yield debugRow(row)
+
+  def debugRow(row: Int) = {
+    val servers = for {
+      (s, a) <- serversAllocated
+      alloc <- a
+      if alloc.coord.row == row
+      slot = alloc.coord.slot
+      id = s.id
+      capa = s.capacity
+      pool = alloc.pool
+      size=s.size
+    } yield slot -> s"$slot : [server $id in pool $pool capa=$capa size=$size]"
+    val se = servers.toList.sortBy(_._1).map(_._2).mkString(" ")
+    s"row $row : $se"
+  }
+
   def capacity(pool: Pool, row: Int) = {
     for {
       (server, a) <- serversAllocated.toList
       alloc <- a
       if alloc.pool == pool
+      if alloc.coord.row == row
+    } yield server.capacity
+  }.sum
+
+  def rowCapacity(row: Int) = {
+    for {
+      (server, a) <- serversAllocated.toList
+      alloc <- a
       if alloc.coord.row == row
     } yield server.capacity
   }.sum

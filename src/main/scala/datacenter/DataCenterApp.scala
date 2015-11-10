@@ -31,4 +31,6 @@ object DataCenterApp extends App {
     servers = sol.serversPerPool(i)
     maxCapa = servers.maxBy(_.capacity)
   } println(s"pool $i with capa $capaPool : max server : $maxCapa")
+  
+  sol.debug.foreach(println)
 }
