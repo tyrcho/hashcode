@@ -84,10 +84,29 @@ case class Solution(
       id = s.id
       capa = s.capacity
       pool = alloc.pool
-      size=s.size
+      size = s.size
     } yield slot -> s"$slot : [server $id in pool $pool capa=$capa size=$size]"
     val se = servers.toList.sortBy(_._1).map(_._2).mkString(" ")
     s"row $row : $se"
+  }
+
+  def debugPool(pool: Int) = {
+    val servers = serversPerPool(pool).sortBy(_._2.coord.row)
+    val maxCapa = servers.maxBy(_._1.capacity)
+    val pools = poolsPerCapacity(problem.nbPools).toMap
+    val capaPool = pools(pool)
+
+    val info = (for {
+      (s, alloc) <- servers
+      slot = alloc.coord.slot
+      id = s.id
+      capa = s.capacity
+      pool = alloc.pool
+      size = s.size
+      row = alloc.coord.row
+    } yield s"row $row : [server $id in pool $pool capa=$capa size=$size]").mkString(" ")
+
+    s"pool $pool with capa $capaPool ; max server : $maxCapa { $info }"
   }
 
   def capacity(pool: Pool, row: Int) = {
@@ -107,12 +126,12 @@ case class Solution(
     } yield server.capacity
   }.sum
 
-  def serversPerPool(pool: Pool): List[Server] = {
+  def serversPerPool(pool: Pool) = {
     for {
       (server, a) <- serversAllocated.toList
       alloc <- a
       if alloc.pool == pool
-    } yield server
+    } yield (server, alloc)
   }
 
   def poolsPerCapacity(maxPools: Int) = {
@@ -121,7 +140,7 @@ case class Solution(
       servers = serversPerPool(i)
     } yield {
       val capaTotal = (for {
-        s <- servers
+        (s, _) <- servers
         capa = s.capacity
       } yield capa).sum
       i -> capaTotal

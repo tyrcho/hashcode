@@ -24,13 +24,10 @@ object DataCenterApp extends App {
   sol.format.foreach(println)
   sol.validate()
   println(sol.score)
-  val pools = sol.poolsPerCapacity(problem.nbPools).toMap
+
   for {
     i <- 0 until problem.nbPools
-    capaPool = pools(i)
-    servers = sol.serversPerPool(i)
-    maxCapa = servers.maxBy(_.capacity)
-  } println(s"pool $i with capa $capaPool : max server : $maxCapa")
+  } println(sol.debugPool(i))
   
   sol.debug.foreach(println)
 }
