@@ -3,9 +3,10 @@ package datacenter
 import problem._
 
 case class Solution(
+    problem:Problem,
     serversAllocated: Map[Server, Option[Allocation]]) {
 
-  def score(problem: Problem): Int = {
+  def score: Int = {
     import problem._
 
     def capacity(pool: Pool): Int =
@@ -33,7 +34,7 @@ case class Solution(
 
   }
 
-  def validate(problem: Problem) {
+  def validate() {
     import problem._
 
     val allocatedArray = for {

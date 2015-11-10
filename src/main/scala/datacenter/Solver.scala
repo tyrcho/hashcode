@@ -32,6 +32,6 @@ object SequentialSolver extends Solver {
           }
       }
     }
-    solveRec(freeSlots, sortedServers, Solution(Map.empty))
+    solveRec(freeSlots, sortedServers, Solution(problem, Map.empty))
   }
 }

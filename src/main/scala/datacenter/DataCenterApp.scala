@@ -13,13 +13,6 @@ object DataCenterApp extends App {
     Array(s, c) = line.split(" ")
   } yield Server(s.toInt, c.toInt, i)
 
-  val allAllocated = Solution((for {
-    s <- servers
-  } yield s -> Some(Allocation(Coord(0, 0), 1))).toMap)
-  val allNotAllocated = Solution((for {
-    s <- servers
-  } yield s -> None).toMap)
-
   val unavailable = for {
     line <- input.tail.take(nbUnavailable)
     Array(r, s) = line.split(" ")
@@ -29,8 +22,8 @@ object DataCenterApp extends App {
 
   val sol = SequentialSolver.solve(problem)
   sol.format.foreach(println)
-  sol.validate(problem)
-  println(sol.score(problem))
+  sol.validate()
+  println(sol.score)
   val pools = sol.poolsPerCapacity(problem.nbPools).toMap
   for {
     i <- 0 until problem.nbPools
