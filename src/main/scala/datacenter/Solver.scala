@@ -1,5 +1,6 @@
-import DataCenterProblem._
-import DataCenterSolution._
+package datacenter
+
+import problem._
 
 trait Solver {
   def solve(problem: Problem): Solution
