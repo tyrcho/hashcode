@@ -92,6 +92,7 @@ case class Solution(
     val maxCapa = servers.maxBy(_._1.capacity)
     val pools = poolsPerCapacity.toMap
     val capaPool = pools(pool)
+    val score = scoreForPool(pool)
 
     val info = (for {
       (s, alloc) <- servers
@@ -103,7 +104,7 @@ case class Solution(
       row = alloc.coord.row
     } yield s"row $row : [server $id in pool $pool capa=$capa size=$size]").mkString(" ")
 
-    s"pool $pool with capa $capaPool ; max server : $maxCapa { $info }"
+    s"pool $pool with capa $capaPool and score $score ; max server : $maxCapa { $info }"
   }
 
   def capacity(pool: Pool, row: Int) = {

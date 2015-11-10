@@ -21,13 +21,16 @@ object DataCenterApp extends App {
   val problem = Problem(nbRows, nbSlots, servers, unavailable, nbPools)
 
   val sol = SequentialSolver.solve(problem)
-  sol.format.foreach(println)
   sol.validate()
-  println(sol.score)
 
   for {
     i <- 0 until problem.nbPools
   } println(sol.debugPool(i))
-  
+
   sol.debug.foreach(println)
+
+  sol.format.foreach(println)
+
+  println(sol.score)
+
 }
