@@ -1,0 +1,14 @@
+*.*~
+target/
+/.metadata/
+*.iml
+atlassian-ide-plugin.xml
+.idea/
+/Servers/
+/JSI/
+
+#eclipse files
+.classpath
+.project
+.settings/
+.cache-main
