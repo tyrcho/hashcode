@@ -8,7 +8,7 @@ trait Solver {
 
 object SequentialSolver extends Solver {
   def solve(problem: Problem): Solution = {
-    val sortedServers = problem.servers.sortBy(s => s.ratio).reverse
+    val sortedServers = problem.servers.sortBy(s => s.ratio + s.size).reverse
     val freeSlots = problem.initialFreeSlot
 
     def solveRec(freeSlots: List[FreeSlot], servers: List[Server], solution: Solution): Solution = {
@@ -17,8 +17,8 @@ object SequentialSolver extends Solver {
         case server :: t =>
           val pools = solution.poolsPerCapacity(problem.nbPools)
           val pool = pools.minBy(_._2)._1 // lowest capacity pool
-          val rowsByCapacityForPool = (0 until problem.nbRows).sortBy {
-            solution.capacity(pool, _)
+          val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
+            solution.capacity(pool, row) + solution.rowCapacity(row)
           }
           val slots = freeSlots.sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))
           slots.find(_.size >= server.size) match {
