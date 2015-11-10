@@ -8,8 +8,8 @@ trait Solver {
 
 object SequentialSolver extends Solver {
   def solve(problem: Problem): Solution = {
-    val sortedServers = problem.servers.sortBy(s => s.ratio + s.size).reverse
     val freeSlots = problem.initialFreeSlot
+    val sortedServers = problem.servers.sortBy(s => s.ratio + s.size).reverse
 
     def solveRec(freeSlots: List[FreeSlot], servers: List[Server], solution: Solution): Solution = {
       servers match {
@@ -18,12 +18,12 @@ object SequentialSolver extends Solver {
 
           val pools = 0 until problem.nbPools
           val pool = pools.minBy(p => solution.scoreForPool(p) + solution.capacity(p) / 100.0)
-          val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
-            solution.capacity(pool, row) + solution.rowCapacity(row)
+          val rowsByScore = (0 until problem.nbRows).sortBy { row =>
+            solution.allocate(server, Some(Allocation(Coord(row, 0), pool))).score
           }
           val slots = freeSlots
-          .sortBy(- _.size)
-          .sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))
+            .sortBy(-_.size)
+            .sortBy(slot => rowsByScore.indexOf(slot.coord.row))
           slots.find(_.size >= server.size) match {
             case None =>
               println(s"no slot free for $server")
@@ -31,7 +31,7 @@ object SequentialSolver extends Solver {
               else solveRec(freeSlots, t, solution.allocate(server, None))
             case Some(slot) =>
               val remainingSlot = slot.use(server.size)
-              println(s"setting $server at $slot for pool $pool")
+              println(s"setting $server at $slot for pool $pool (score : ${solution.scoreForPool(pool)})")
               solveRec(
                 remainingSlot :: (freeSlots diff List(slot)),
                 t,
