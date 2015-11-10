@@ -27,7 +27,9 @@ case class Solution(
 
     def scoreForPool(pool: Pool): Int = {
       val totalCap = capacity(pool)
-      (0 until nbRows).map(totalCap - capacityInRow(pool, _)).min
+      val s=(0 until nbRows).map(totalCap - capacityInRow(pool, _)).min
+      println(s"score for pool $pool : $s")
+      s
     }
 
     (0 until nbPools).map(scoreForPool).min
