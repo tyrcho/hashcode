@@ -63,8 +63,8 @@ case class Solution(
     (server, optAlloc) <- serversAllocated.toList.sortBy(_._1.id)
   } yield {
     optAlloc match {
-      case None                                => s"$server : x"
-      case Some(Allocation(Coord(r, s), pool)) => s"$server : $r $s $pool"
+      case None                                => s"x\n"
+      case Some(Allocation(Coord(r, s), pool)) => s"$r $s $pool\n"
     }
   }
 

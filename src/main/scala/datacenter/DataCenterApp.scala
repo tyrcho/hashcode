@@ -29,7 +29,11 @@ object DataCenterApp extends App {
 
   sol.debug.foreach(println)
 
-  sol.format.foreach(println)
+  import java.io._
+  val writer=new FileWriter("out.txt")
+  sol.format.foreach(writer.write)
+  writer.flush()
+  writer.close()
 
   println(sol.score)
 
