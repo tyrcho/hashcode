@@ -6,35 +6,30 @@ case class Solution(
     problem: Problem,
     serversAllocated: Map[Server, Option[Allocation]]) {
 
-  def score: Int = {
-    import problem._
+  def score: Int =
+    (0 until problem.nbPools).map(scoreForPool).min
 
-    def capacity(pool: Pool): Int =
-      (for {
-        (server, allocOpt) <- serversAllocated
-        alloc <- allocOpt
-        if alloc.pool == pool
-      } yield server.capacity).sum
-
-    def capacityInRow(pool: Pool, row: Int): Int = {
-      (for {
-        (server, allocOpt) <- serversAllocated
-        alloc <- allocOpt
-        if alloc.pool == pool
-        if alloc.coord.row == row
-      } yield server.capacity).sum
-    }
-
-    def scoreForPool(pool: Pool): Int = {
-      val totalCap = capacity(pool)
-      val s=(0 until nbRows).map(totalCap - capacityInRow(pool, _)).min
-      println(s"score for pool $pool : $s")
-      s
-    }
-
-    (0 until nbPools).map(scoreForPool).min
-
+  def scoreForPool(pool: Pool): Int = {
+    val totalCap = capacity(pool)
+    val s = (0 until problem.nbRows).map(totalCap - capacityInRow(pool, _)).min
+    s
   }
+
+  def capacityInRow(pool: Pool, row: Int): Int = {
+    (for {
+      (server, allocOpt) <- serversAllocated
+      alloc <- allocOpt
+      if alloc.pool == pool
+      if alloc.coord.row == row
+    } yield server.capacity).sum
+  }
+
+  def capacity(pool: Pool): Int =
+    (for {
+      (server, allocOpt) <- serversAllocated
+      alloc <- allocOpt
+      if alloc.pool == pool
+    } yield server.capacity).sum
 
   def validate() {
     import problem._
@@ -95,7 +90,7 @@ case class Solution(
   def debugPool(pool: Int) = {
     val servers = serversPerPool(pool).sortBy(_._2.coord.row)
     val maxCapa = servers.maxBy(_._1.capacity)
-    val pools = poolsPerCapacity(problem.nbPools).toMap
+    val pools = poolsPerCapacity.toMap
     val capaPool = pools(pool)
 
     val info = (for {
@@ -119,18 +114,16 @@ case class Solution(
       if alloc.coord.row == row
     } yield server.capacity
   }.sum
-  
+
   //capacity in case any other row fails
-   def smartCapacity(pool: Pool, row: Int) = {
-    val otherRows=(0 until problem.nbRows).toSet - row
-    val byRows=for {
+  def smartCapacity(pool: Pool, row: Int) = {
+    val otherRows = (0 until problem.nbRows).toSet - row
+    val byRows = for {
       r <- otherRows
     } yield capacity(pool, r)
     byRows.sum - byRows.max
   }
 
-
-  
   def rowCapacity(row: Int) = {
     for {
       (server, a) <- serversAllocated.toList
@@ -147,9 +140,9 @@ case class Solution(
     } yield (server, alloc)
   }
 
-  def poolsPerCapacity(maxPools: Int) = {
+  def poolsPerCapacity = {
     for {
-      i <- 0 until maxPools
+      i <- 0 until problem.nbPools
       servers = serversPerPool(i)
     } yield {
       val capaTotal = (for {
