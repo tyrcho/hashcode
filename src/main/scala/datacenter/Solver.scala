@@ -19,7 +19,7 @@ object SequentialSolver extends Solver {
           val pools = 0 until problem.nbPools
           val pool = pools.minBy(p => solution.scoreForPool(p) + solution.capacity(p) / 100.0)
           val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
-            solution.smartCapacity(pool, row)
+            solution.capacity(pool, row) + solution.rowCapacity(row)
           }
           val slots = freeSlots.sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))
           slots.find(_.size >= server.size) match {
