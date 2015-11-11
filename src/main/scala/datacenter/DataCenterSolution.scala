@@ -15,6 +15,8 @@ case class Solution(
     s
   }
 
+  def actuallyAllocated = serversAllocated.filter(_._2.isDefined)
+
   def capacityInRow(pool: Pool, row: Int): Int = {
     (for {
       (server, allocOpt) <- serversAllocated
@@ -60,9 +62,9 @@ case class Solution(
     copy(serversAllocated = serversAllocated + (server -> allocation))
 
   def format: List[String] = for {
-    server <- problem.servers.sortBy{_.id}
+    server <- problem.servers.sortBy { _.id }
   } yield {
-     serversAllocated.getOrElse(server, None) match {
+    serversAllocated.getOrElse(server, None) match {
       case None                                => s"x\n"
       case Some(Allocation(Coord(r, s), pool)) => s"$r $s $pool\n"
     }
