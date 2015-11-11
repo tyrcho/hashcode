@@ -102,7 +102,7 @@ case class Solution(
       pool = alloc.pool
       size = s.size
       row = alloc.coord.row
-    } yield s"row $row : [server $id in pool $pool capa=$capa size=$size]").mkString(" ")
+    } yield s"row $row : [server $id : capa=$capa size=$size]").mkString(" ")
 
     s"pool $pool with capa $capaPool and score $score ; max server : $maxCapa { $info }"
   }

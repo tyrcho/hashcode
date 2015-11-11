@@ -31,7 +31,7 @@ object SequentialSolver extends Solver {
           val pools = 0 until problem.nbPools
           val pool = pools.minBy(p => solution.scoreForPool(p) + solution.capacity(p) / 100.0)
           val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
-            solution.capacity(pool, row) + solution.rowCapacity(row)
+            solution.capacity(pool, row) 
           }
           val slots = freeSlots
             .sortBy(-_.size)
@@ -44,7 +44,9 @@ object SequentialSolver extends Solver {
             case Some(slot) =>
               val remainingSlot = slot.use(server.size)
               val newSolution = solution.allocate(server, Some(Allocation(slot.coord, pool)))
-              println(s"setting $server at $slot for pool $pool (score for pool: ${solution.scoreForPool(pool)} => ${newSolution.scoreForPool(pool)})")
+              val r=slot.coord.row
+              val c=slot.coord.slot
+              println(s"pool $pool : setting $server at ${r}x${c} (score for pool: ${solution.scoreForPool(pool)} => ${newSolution.scoreForPool(pool)})")
               solveRec(
                 remainingSlot :: (freeSlots diff List(slot)),
                 t,
