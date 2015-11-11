@@ -11,13 +11,17 @@ object SequentialSolver extends Solver {
     val freeSlots = problem.initialFreeSlot
     var totalSize = freeSlots.map(_.size).sum
     println(s"${freeSlots.size} slots for a total size of $totalSize")
-    val bestServers=problem.servers.sortBy(s => -s.ratio).takeWhile { s => totalSize -= s.size; totalSize >= 0 }
-    val bestCapacity=bestServers.map(_.capacity).sum
-    val bestCapPerPool=bestCapacity/problem.nbPools
-    val bestAvailCapPerPool=bestCapPerPool*(problem.nbRows-1)/problem.nbRows
+    val servers = problem.servers
+    val bestServers = servers.sortBy(s => -s.ratio).takeWhile { s => totalSize -= s.size; totalSize >= 0 }
+    val bestCapacity = bestServers.map(_.capacity).sum
+    val bestCapPerPool = bestCapacity / problem.nbPools
+    val bestAvailCapPerPool = bestCapPerPool * (problem.nbRows - 1) / problem.nbRows
     println(s"maximum total capacity : $bestCapacity for ${problem.nbPools} pools => $bestCapPerPool per pool, max available with 1 out of ${problem.nbRows} rows down : $bestAvailCapPerPool")
-    
-    val sortedServers = problem.servers.sortBy(s => s.ratio + s.size).reverse
+
+    val big = bestServers.filter(_.size > 2).sortBy(-_.capacity)
+    val small = bestServers.filter(_.size == 2).sortBy(-_.capacity)
+    val last = servers.filter(_.size == 1).sortBy(-_.capacity)
+    val sortedServers = big ::: small ::: last
 
     def solveRec(freeSlots: List[FreeSlot], servers: List[Server], solution: Solution): Solution = {
       servers match {
@@ -39,11 +43,12 @@ object SequentialSolver extends Solver {
               else solveRec(freeSlots, t, solution.allocate(server, None))
             case Some(slot) =>
               val remainingSlot = slot.use(server.size)
-              println(s"setting $server at $slot for pool $pool (score : ${solution.scoreForPool(pool)})")
+              val newSolution = solution.allocate(server, Some(Allocation(slot.coord, pool)))
+              println(s"setting $server at $slot for pool $pool (score for pool: ${solution.scoreForPool(pool)} => ${newSolution.scoreForPool(pool)})")
               solveRec(
                 remainingSlot :: (freeSlots diff List(slot)),
                 t,
-                solution.allocate(server, Some(Allocation(slot.coord, pool))))
+                newSolution)
           }
       }
     }
