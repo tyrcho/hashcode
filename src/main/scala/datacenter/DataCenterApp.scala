@@ -20,37 +20,37 @@ object DataCenterApp extends App {
 
   val problem = Problem(nbRows, nbSlots, servers, unavailable, nbPools)
 
-  val scores=for {
-    maxScore <- (410 to 450).par 
-    solver= SequentialSolver(maxScore)
-    solution=solver.solve(problem)
-    score=solution.score
-    msg=s"parameter maxScore=$maxScore => score = $score"
-  } yield {
-    println(msg)
-    msg
-  }
+//  val scores=for {
+//    maxScore <- (400 to 409).par 
+//    solver= SequentialSolver(maxScore)
+//    solution=solver.solve(problem)
+//    score=solution.score
+//    msg=s"parameter maxScore=$maxScore => score = $score"
+//  } yield {
+//    println(msg)
+//    msg
+//  }
+//  
+//  scores.foreach(println)
   
-  scores.foreach(println)
   
-  
-//  val sol = SequentialSolver.solve(problem)
-//  sol.validate()
-//
-//  for {
-//    i <- 0 until problem.nbPools
-//  } println(sol.debugPool(i))
-//
-//  sol.debug.foreach(println)
-//
-//  import java.io._
-//  val writer = new FileWriter("out.txt")
-//  sol.format.foreach(writer.write)
-//  writer.flush()
-//  writer.close()
-//
-//  println("total capacity allocated : " + sol.serversAllocated.filterNot(_._2.isEmpty).keys.toList.map(_.capacity).sum)
-//
-//  println(sol.score)
+  val sol = SequentialSolver(403).solve(problem)
+  sol.validate()
+
+  for {
+    i <- 0 until problem.nbPools
+  } println(sol.debugPool(i))
+
+  sol.debug.foreach(println)
+
+  import java.io._
+  val writer = new FileWriter("out.txt")
+  sol.format.foreach(writer.write)
+  writer.flush()
+  writer.close()
+
+  println("total capacity allocated : " + sol.serversAllocated.filterNot(_._2.isEmpty).keys.toList.map(_.capacity).sum)
+
+  println(sol.score)
 
 }
