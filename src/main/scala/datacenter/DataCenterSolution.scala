@@ -60,9 +60,9 @@ case class Solution(
     copy(serversAllocated = serversAllocated + (server -> allocation))
 
   def format: List[String] = for {
-    (server, optAlloc) <- serversAllocated.toList.sortBy(_._1.id)
+    server <- problem.servers.sortBy{_.id}
   } yield {
-    optAlloc match {
+     serversAllocated.getOrElse(server, None) match {
       case None                                => s"x\n"
       case Some(Allocation(Coord(r, s), pool)) => s"$r $s $pool\n"
     }
