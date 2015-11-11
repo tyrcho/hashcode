@@ -6,7 +6,7 @@ trait Solver {
   def solve(problem: Problem): Solution
 }
 
-object SequentialSolver extends Solver {
+case class SequentialSolver(maxScore:Int) extends Solver {
   def solve(problem: Problem): Solution = {
     val freeSlots = problem.initialFreeSlot
     var totalSize = freeSlots.map(_.size).sum
@@ -27,14 +27,13 @@ object SequentialSolver extends Solver {
       val pools = 0 until problem.nbPools
       val countInRest = rest.count(_.capacity == server.capacity)
       val capa = server.capacity
-      val maxCapa = 520
       val poolsWithSimilarBigServer = for {
         pool <- pools
         currentCapa = solution.capacity(pool)
         maxServer <- solution.maxServerForPool(pool)
         if maxServer.capacity == capa
-        free = maxCapa - currentCapa
-        if free > capa
+        free = maxScore - currentCapa
+        if free > 0
       } yield (pool, free)
       val continueInPool =
         if (countInRest != 1 && poolsWithSimilarBigServer.nonEmpty) Some(poolsWithSimilarBigServer.maxBy(_._2)._1) // smallest pool if we can at least make a new group of 2 servers after
