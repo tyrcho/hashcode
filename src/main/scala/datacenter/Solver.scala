@@ -28,14 +28,15 @@ object SequentialSolver extends Solver {
       val similarServersUsed = solution.actuallyAllocated.toList.sortBy { case (s, a) => math.abs(s.capacity - server.capacity) }
       val poolsWithSimilarBigServer = for {
         pool <- pools
-        if solution.capacity(pool) + server.capacity < 400
+        if solution.capacity(pool) < 420
         servers = solution.serversPerPool(pool)
         if servers.nonEmpty
         maxServer = servers.toMap.keys.maxBy(_.capacity)
         delta = math.abs(maxServer.capacity - server.capacity)
-      } yield pool -> delta
-      poolsWithSimilarBigServer.sortBy(_._2).headOption match {
-        case Some((pool, delta)) if delta < 5 => pool
+        if delta == 0
+      } yield pool
+      poolsWithSimilarBigServer.headOption match {
+        case Some(pool) => pool
         case _ =>
           pools.minBy(p => solution.scoreForPool(p) + solution.capacity(p) / 100.0)
       }
