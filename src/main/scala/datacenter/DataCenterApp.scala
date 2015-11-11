@@ -30,10 +30,12 @@ object DataCenterApp extends App {
   sol.debug.foreach(println)
 
   import java.io._
-  val writer=new FileWriter("out.txt")
+  val writer = new FileWriter("out.txt")
   sol.format.foreach(writer.write)
   writer.flush()
   writer.close()
+
+  println("total capacity allocated : " + sol.serversAllocated.filterNot(_._2.isEmpty).keys.toList.map(_.capacity).sum)
 
   println(sol.score)
 

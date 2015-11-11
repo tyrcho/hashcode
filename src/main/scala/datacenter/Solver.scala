@@ -9,6 +9,14 @@ trait Solver {
 object SequentialSolver extends Solver {
   def solve(problem: Problem): Solution = {
     val freeSlots = problem.initialFreeSlot
+    var totalSize = freeSlots.map(_.size).sum
+    println(s"${freeSlots.size} slots for a total size of $totalSize")
+    val bestServers=problem.servers.sortBy(s => -s.ratio).takeWhile { s => totalSize -= s.size; totalSize >= 0 }
+    val bestCapacity=bestServers.map(_.capacity).sum
+    val bestCapPerPool=bestCapacity/problem.nbPools
+    val bestAvailCapPerPool=bestCapPerPool*(problem.nbRows-1)/problem.nbRows
+    println(s"maximum total capacity : $bestCapacity for ${problem.nbPools} pools => $bestCapPerPool per pool, max available with 1 out of ${problem.nbRows} rows down : $bestAvailCapPerPool")
+    
     val sortedServers = problem.servers.sortBy(s => s.ratio + s.size).reverse
 
     def solveRec(freeSlots: List[FreeSlot], servers: List[Server], solution: Solution): Solution = {
