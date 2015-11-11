@@ -23,33 +23,31 @@ object SequentialSolver extends Solver {
     val last = servers.filter(_.size == 1).sortBy(-_.capacity)
     val sortedServers = big ::: small ::: last
 
-    def selectPool(server: Server, solution: Solution): Pool = {
+    def selectPool(server: Server, rest: List[Server], solution: Solution): Pool = {
       val pools = 0 until problem.nbPools
-      val similarServersUsed = solution.actuallyAllocated.toList.sortBy { case (s, a) => math.abs(s.capacity - server.capacity) }
+      val countInRest = rest.count(_.capacity == server.capacity)
+      val capa = server.capacity
+      val maxCapa = 520
       val poolsWithSimilarBigServer = for {
         pool <- pools
-        if solution.capacity(pool) < 420
-        servers = solution.serversPerPool(pool)
-        if servers.nonEmpty
-        maxServer = servers.toMap.keys.maxBy(_.capacity)
-        delta = math.abs(maxServer.capacity - server.capacity)
-        if delta == 0
-      } yield pool
-      poolsWithSimilarBigServer.headOption match {
-        case Some(pool) => pool
-        case _ =>
-          pools.minBy(p => solution.scoreForPool(p) + solution.capacity(p) / 100.0)
-      }
+        currentCapa = solution.capacity(pool)
+        maxServer <- solution.maxServerForPool(pool)
+        if maxServer.capacity == capa
+        free = maxCapa - currentCapa
+        if free > capa
+      } yield (pool, free)
+      val continueInPool =
+        if (countInRest != 1 && poolsWithSimilarBigServer.nonEmpty) Some(poolsWithSimilarBigServer.maxBy(_._2)._1) // smallest pool if we can at least make a new group of 2 servers after
+        else poolsWithSimilarBigServer.filter { case (pool, free) => free > 2 * capa }.headOption.map(_._1) // else a pool which can hold the rest of these servers
+      continueInPool.getOrElse(pools.minBy(p => solution.scoreForPool(p) + solution.capacity(p) / 100.0))
     }
 
     def solveRec(freeSlots: List[FreeSlot], servers: List[Server], solution: Solution): Solution = {
       servers match {
         case Nil => solution
         case server :: t =>
-          val pool = selectPool(server, solution)
-          val rowsByCapacityForPool = (0 until problem.nbRows).sortBy { row =>
-            solution.capacity(pool, row)
-          }
+          val pool = selectPool(server, t, solution)
+          val rowsByCapacityForPool = (0 until problem.nbRows).sortBy(solution.rowCapacity).sortBy(solution.capacity(pool, _))
           val slots = freeSlots
             .sortBy(-_.size)
             .sortBy(slot => rowsByCapacityForPool.indexOf(slot.coord.row))

@@ -90,7 +90,7 @@ case class Solution(
   }
 
   def debugPool(pool: Int) = {
-    val servers = serversPerPool(pool).sortBy(_._2.coord.row)
+    val servers = serversPerPool(pool).toList.sortBy(_._2.coord.row)
     val maxCapa = servers.maxBy(_._1.capacity)
     val pools = poolsPerCapacity.toMap
     val capaPool = pools(pool)
@@ -141,6 +141,12 @@ case class Solution(
       alloc <- a
       if alloc.pool == pool
     } yield (server, alloc)
+  }.toMap
+
+  def maxServerForPool(pool: Pool) = {
+    val servers = serversPerPool(pool)
+    if (servers.isEmpty) None
+    else Some(servers.toMap.keys.maxBy(_.capacity))
   }
 
   def poolsPerCapacity = {
